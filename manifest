@@ -11,4 +11,5 @@
 ./home/benedict/.vim
 ./home/benedict/.screenrc
 ./home/benedict/.vimrc
+./usr/share/doc/dotfiles-benedict
 ./usr/share/doc/dotfiles-benedict/changelog.Debian.gz

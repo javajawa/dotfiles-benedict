@@ -11,5 +11,5 @@ $(CHANGELOG): changelog
 	gzip changelog -c >$@
 
 clean:
-	rm $(CHANGELOG)
+	rm -f $(CHANGELOG)
 	-rmdir --parents $(dir $(CHANGELOG))
