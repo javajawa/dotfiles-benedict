@@ -1,0 +1,46 @@
+# Configure shell to be me shell :P
+shell -${SHELL}
+
+# Because, why wouldn't you use UTF-8?
+setenv LC_CTYPE en_GB.UTF-8
+term "screen-256color"
+defutf8 on
+
+startup_message off # This is screen? I had no idea :P
+vbell off # Because a flashing screen is much, much more painful than a bell
+crlf off
+defflow off # Turn off the pesky ^S and ^Q commands
+altscreen on # For full screen programs
+
+# As I use it as a primary terminal, more scrollback more better
+defscrollback 5000
+
+# Some notes on the string there
+# First, set foreground and background to black
+# This is a work around for a bug whereby screen changed
+# the order in which the colours are read, but not in all cases.
+# When you have one tab open, it reads fg,bg. However, as in the docs
+# in other cases it reads bg,fg.
+# Thankfully, if only one is specified, it's assumed as fg.
+# Status line shows: host, this window, list of other windows, clock
+hardstatus alwayslastline
+hardstatus string '%{kk}%{g}[%H] %{B}[%n:%t] %{w}[%-w%+w]%=%{g}[%D %d %M %c]'
+
+# Remove the close all and split commands
+bind |
+bind \\
+
+# Last F-key block
+#  9: Change window title
+# 10: Close current region
+# 11: Create new l/r region
+# 12: Create new t/b region
+bindkey -k k9 title
+bindkey -k k; screen
+bindkey -k F1 split -v
+bindkey -k F2 remove
+# and C-\ moves to next region
+bindkey ^\ focus
+# ` same as " (easier to type)
+bind ` windowlist -b
+

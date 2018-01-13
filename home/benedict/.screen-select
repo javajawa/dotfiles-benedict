@@ -1,0 +1,64 @@
+#!/bin/zsh
+
+screen-select()
+{
+	local screens="$(screen -list | sed -n -e '/.login/p' -e '/.irc/p')"
+
+	printf "\nn\tCreate New Session\n"
+	printf "s\tLaunch shell without screen\n"
+	printf "c\tRun command\n"
+	if [ -f "$HOME/.Xdefaults" -a -x "$HOME/scripts/x" -a -z "$DISPLAY" ]; then
+		printf "x\tLaunch X11\n"
+	fi
+	printf "q\tQuit\n"
+
+	if [ -z "$screens" ]; then
+		local count=0
+	else
+		printf "\n"
+		local count="$(printf "%s\n" "$screens" | wc -l)"
+		printf "%s\n" "$screens" | awk '{print NR,$0}'
+	fi
+	printf "\n"
+
+	choice=-1
+	while [ true ];
+	do
+		if [ $count -gt 0 ]; then
+			printf "\nSelect session [0-%d] or one of the options > " "$count"
+		else
+			printf "\nSelect an option > "
+		fi
+
+		read choice
+		if [ -z "$choice" ]; then
+			choice=0
+			break
+		elif [ $choice -eq $choice -a $choice -ge 0 -a $choice -le $count 2>/dev/null ]; then
+			break
+		elif [ $choice = 'n' ]; then
+			choice=0
+			break
+		elif [ $choice = 's' ]; then
+			return 1
+		elif [ $choice = 'c' ]; then
+			printf "%s@%s > " $USER $HOST
+			read comm
+			exec sh -c $comm
+		elif [ $choice = 'x' -a -f "$HOME/.Xdefaults" -a -x "$HOME/scripts/x" -a -z "$DISPLAY" ]; then
+			exec nohup sh $HOME/scripts/x >/dev/null 2>&1
+		elif [ $choice = 'q' ]; then
+			exec /bin/false
+		fi
+	done
+
+	if [ $choice -eq 0 ]; then
+		exec screen -S login
+	else
+		session=$(printf "%s\n" "$screens" | sed -n -e "$choice p" \
+		| awk '{print $1}')
+		exec screen -x $session
+	fi
+
+}
+

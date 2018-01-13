@@ -1,0 +1,22 @@
+Package: dotfiles-benedict
+Section: misc
+Priority: optional
+Architecture: all
+Origin: tea-cats
+Depends: zsh, screen, vim, ncurses-term
+Recommends: htop
+Essential: no
+Maintainer: Benedict Harcourt <ben@tea-cats.co.uk>
+Description: Configuration files for benedict
+ This package contains the default configuration
+ files for Benedict Harcourt.
+ If one does not already exist, an account called
+ 'benedict' will be created on your system, with
+ shell '/bin/zsh' and home '/home/benedict'.
+ .
+ Configuration files are included for:
+ .
+  * zsh
+  * vim
+  * htop
+  * screen

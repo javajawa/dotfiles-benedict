@@ -1,0 +1,14 @@
+./home/benedict
+./home/benedict/.zshcache
+./home/benedict/.ssh
+./home/benedict/.ssh/authorized_keys
+./home/benedict/.screen-select
+./home/benedict/.config
+./home/benedict/.config/htop
+./home/benedict/.config/htop/htoprc
+./home/benedict/.zshrc
+./home/benedict/.zcompdump
+./home/benedict/.vim
+./home/benedict/.screenrc
+./home/benedict/.vimrc
+./usr/share/doc/dotfiles-benedict/changelog.Debian.gz
