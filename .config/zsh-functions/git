@@ -42,12 +42,12 @@ g()
 		fi
 	fi
 
-	git clone "$REPO" "$FOLDER" && cd "$FOLDER"
+	command git clone "$REPO" "$FOLDER" && cd "$FOLDER"
 }
 
 mr()
 {
-	local BRANCH=$(git rev-parse --abbrev-ref HEAD)
+	local BRANCH=$(command git rev-parse --abbrev-ref HEAD)
 
 	if [ $? -ne 0 ]
 	then
@@ -55,13 +55,13 @@ mr()
 		return $?
 	fi
 
-	local REMOTE=$(git config --get "branch.${BRANCH}.remote")
+	local REMOTE=$(command git config --get "branch.${BRANCH}.remote")
 	REMOTE=${REMOTE:-origin}
 
-	local UPSTREAM=$(git config --get "branch.${BRANCH}.merge")
+	local UPSTREAM=$(command git config --get "branch.${BRANCH}.merge")
 	UPSTREAM=${UPSTREAM#refs/heads/}
 
-	local DEFAULT_BRANCH=$(git rev-parse --abbrev-ref "refs/remotes/$REMOTE/HEAD")
+	local DEFAULT_BRANCH=$(command git rev-parse --abbrev-ref "refs/remotes/$REMOTE/HEAD")
 	DEFAULT_BRANCH=${DEFAULT_BRANCH#$REMOTE/}
 	DEFUALT_BRANCH=${DEFAULT_BRANCH:-master}
 
@@ -76,15 +76,15 @@ mr()
 
 	if [ -n "$UPSTREAM" ]
 	then
-		git push "$REMOTE" "${BRANCH}" -o merge_request.create -o "merge_request.target=${DEFAULT_BRANCH}"
+		command git push "$REMOTE" "${BRANCH}" -o merge_request.create -o "merge_request.target=${DEFAULT_BRANCH}"
 	else
-		git push "$REMOTE" "${BRANCH}:${BRANCH}" -u -o merge_request.create -o "merge_request.target=${DEFAULT_BRANCH}"
+		command git push "$REMOTE" "${BRANCH}:${BRANCH}" -u -o merge_request.create -o "merge_request.target=${DEFAULT_BRANCH}"
 	fi
 }
 
 git_update()
 {
-	local BRANCH=$(git branch --show-current)
+	local BRANCH=$(command git branch --show-current)
 
 	if [ $? -ne 0 ]
 	then
@@ -93,30 +93,30 @@ git_update()
 		return $X
 	fi
 
-	if [ -n "$(git status --porcelain)" ]
+	if [ -n "$(command git status --porcelain)" ]
 	then
 		printf >&2 "Local changes detected, aborting\n"
 		return 1
 	fi
 
-	local REMOTE=$(git config --get "branch.${BRANCH}.remote")
+	local REMOTE=$(command git config --get "branch.${BRANCH}.remote")
 	REMOTE=${REMOTE:-origin}
 
-	local DEFAULT_BRANCH=$(git rev-parse --abbrev-ref "refs/remotes/$REMOTE/HEAD")
+	local DEFAULT_BRANCH=$(command git rev-parse --abbrev-ref "refs/remotes/$REMOTE/HEAD")
 	DEFAULT_BRANCH=${DEFAULT_BRANCH#$REMOTE/}
 	DEFUALT_BRANCH=${DEFAULT_BRANCH:-master}
 
-	git fetch --prune "$REMOTE" && \
+	command git fetch --prune "$REMOTE" && \
 	git checkout "$DEFAULT_BRANCH" && \
-	git merge "$REMOTE/HEAD" --ff-only || return 1
+	command git merge "$REMOTE/HEAD" --ff-only || return 1
 
-	local SELF=$(git rev-parse --symbolic-full-name HEAD)
+	local SELF=$(command git rev-parse --symbolic-full-name HEAD)
 
-	git branch --format '%(refname)' --merged=HEAD | while read REF
+	command git branch --format '%(refname)' --merged=HEAD | while read REF
 	do
 		if [ "$REF" != "$SELF" ]
 		then
-			git branch -d "${REF#refs/heads/}"
+			command git branch -d "${REF#refs/heads/}"
 		fi
 	done
 }
@@ -173,3 +173,44 @@ _g()
 }
 
 compdef _g g
+
+
+git_prompt()
+{
+	readonly local CURR_DIR="$(pwd)/"
+
+	if [ -n "$CURRENT_GIT_DIR" ]
+	then
+		test "${CURR_DIR#$CURRENT_GIT_DIR}" != "${CURR_DIR}" && return 0
+
+		printf >&2 "[Leaving git repo %s]\n" "$CURRENT_GIT_DIR"
+
+		unset "PROMPT_INFO[git]"
+		set_prompt
+	fi
+
+	DIR=$(git rev-parse --show-toplevel 2>/dev/null)
+
+	if [ -n "$DIR" ] && [ "$DIR" != "/home/benedict" ]
+	then
+		printf >&2 "[Entering git repo %s]\n" "$CURRENT_GIT_DIR"
+
+		CURRENT_GIT_DIR=$DIR
+		PROMPT_INFO[git]=$(command git rev-parse --abbrev-ref HEAD)
+		set_prompt
+	fi
+}
+
+git()
+{
+	command git "$@"
+	if [ -n "$CURRENT_GIT_DIR" ]
+	then
+		PROMPT_INFO[git]=$(command git rev-parse --abbrev-ref HEAD)
+		set_prompt
+	fi
+}
+
+add-zsh-hook chpwd git_prompt
+CURRENT_GIT_DIR=
+git_prompt
