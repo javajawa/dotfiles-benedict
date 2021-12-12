@@ -1,1 +1,19 @@
-usr/
+# vim: nospell
+*
+
+!.gitkeep
+
+!/.gitignore
+!/.gitignore_global
+
+!/.config
+!/.config/zsh-functions
+!/.config/zsh-functions/*
+
+!/.ssh
+!/.ssh/config
+!/.ssh/authorized_keys
+
+!/.screenrc
+!/.vimrc
+!/.zshrc

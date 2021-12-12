@@ -1,0 +1,23 @@
+#---COMPLETION STUFF------------------------------------------------------
+# vim: syntax=zsh
+
+zstyle ':completion:*' verbose yes
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path ~/.zshcache
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+
+zstyle ':completion:*' completer _complete _match _approximate
+zstyle ':completion:*:match:*' original only
+zstyle ':completion:*:approximate:*' max-errors 'reply=($((($#PREFIX+$#SUFFIX)/3))numeric)'
+
+zstyle ':completion:*:descriptions' format '%B%d%b'
+zstyle ':completion:*:messages' format '%d'
+zstyle ':completion:*:warnings' format 'No matches for: %d'
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*' ignore-parents parent pwd
+
+zstyle ':completion::*:(rm|vim):*' ignore-line true
+zstyle ':completion:*:*:vim:*:*files' ignored-patterns '*.o' '*.pdf'
+zstyle ':completion:*:*:vim:*:*files' ignored-patterns '*.aux' '*.dvi' '*.out' '*.nav' '*.snm'
+
+autoload -U compinit && compinit -u 2>/dev/null

@@ -1,0 +1,49 @@
+#---PYTHON AUTOMATION-----------------------------------------------------
+# vim: syntax=zsh
+
+activate_venv()
+{
+	readonly local CURR_DIR="$(pwd)/"
+
+	if [ -n "$VIRTUAL_ENV" ]
+	then
+		readonly BASE_DIR=${VIRTUAL_ENV%venv}
+
+		if [ "${CURR_DIR#$BASE_DIR}" != "${CURR_DIR}" ]
+		then
+			return 0
+		fi
+
+		printf >&2 "[Leaving venv %s]\n" "$VIRTUAL_ENV"
+
+		unset VENV_NAME
+		unset VIRTUAL_ENV
+		unset PYTHON_PATH
+
+		export PATH=$DEFAULT_PATH
+
+		unset "PROMPT_INFO[venv]"
+
+		set_prompt
+	fi
+
+	if [ -d "${CURR_DIR}venv" ]
+	then
+		printf >&2 "[Entering venv %s]\n" "${CURR_DIR}venv"
+
+		export VIRTUAL_ENV="${CURR_DIR}venv"
+		export PATH="${CURR_DIR}venv/bin:$DEFAULT_PATH"
+		export PROMPT_INFO[venv]="$(basename ${CURR_DIR})"
+
+		if [ -d "${CURR_DIR}src" ]
+		then
+			export PYTHONPATH="${CURR_DIR}src"
+		fi
+
+		set_prompt
+	fi
+}
+
+add-zsh-hook chpwd activate_venv
+VIRTUAL_ENV=
+activate_venv

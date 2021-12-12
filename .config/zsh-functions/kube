@@ -1,0 +1,41 @@
+#---KUBE AUTOMOATION------------------------------------------------------
+# vim: syntax=zsh
+
+PROMPT_INFO[kube]="$(kubectl config current-context)"
+
+kubectx()
+{
+	kubectl config use-context "$@"
+	PROMPT_INFO[kube]="$(kubectl config current-context)"
+	set_prompt
+}
+
+_kubectx()
+{
+	_arguments '1: :->context'
+
+	if [ "$state" = "context" ]
+	then
+		local KUBECONFIG=${KUBECONFIG:-~/.kube/config}
+		local CONTEXTS=("${(@f)$(kubectl config get-contexts -o name)}")
+		compadd "$@" $CONTEXTS
+	fi
+}
+
+allkubes()
+{
+	if [ "$1" != "get" ]
+	then
+		printf >&2 "%s: verb '%s' not supoprted, must be one of 'get'.\n" "$0" "$1"
+		return 1
+	fi
+
+	for CONTEXT in $(kubectl config get-contexts -o name)
+	do
+		printf " === %s ===\n" "$CONTEXT"
+		kubectl "--context=$CONTEXT" "$@"
+		printf "\n"
+	done
+}
+
+compdef _kubectx kubectx

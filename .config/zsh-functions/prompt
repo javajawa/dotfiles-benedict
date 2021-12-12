@@ -1,0 +1,22 @@
+#---PROMPT STUFF----------------------------------------------------------
+# vim: syntax=zsh
+
+readonly DEFAULT_PATH=$PATH
+
+# <user>@<host>:<cwd>$
+readonly DEFAULT_PS1="%{$fg[yellow]%}%n@%m%{$fg[white]%}:%{$fg_bold[blue]%}%5c%{$reset_color%}\$ "
+
+declare -A PROMPT_INFO
+
+set_prompt()
+{
+	local OUTPUT=""
+
+	for KEY in ${(k)PROMPT_INFO}
+	do
+		test -n "$PROMPT_INFO[$KEY]" || continue
+		OUTPUT="${OUTPUT}($KEY:$PROMPT_INFO[$KEY]) "
+	done
+
+	export PS1="${OUTPUT}${DEFAULT_PS1}"
+}

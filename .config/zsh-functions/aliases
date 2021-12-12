@@ -1,0 +1,64 @@
+#---SIMPLE ALIASES------------------------------------------------------
+# vim: syntax=zsh
+
+chmog()
+{
+	printf "zsh: kitteh not found: $2\n"
+}
+
+l()
+{
+	command ls -h -l -G $*
+}
+
+ll()
+{
+	find $* -exec ls -ld -G '{}' \+ | more
+}
+
+cd()
+{
+	if [ -n "$1" ] && [ -z "$2" ] && [ -e "$1" ] && ! [ -d "$1" ]
+	then
+		cd "${1%/*}"
+		return $?
+	fi
+
+	builtin cd "$@"
+}
+
+cat()
+{
+	# If cat(1) is being used in actual concatenation mode,
+	# don't do anything clever!!
+	if [ -z "$2" -a -d "$1" ]
+	then
+		l "$1"
+	else
+		command cat "$@"
+	fi
+}
+
+less()
+{
+	if [ -d "$1" ]
+	then
+		ll "$1"
+	else
+		command less "$@"
+	fi
+}
+
+alias 'lk=l -A'
+alias 'ls=ls -G'
+alias 'grep=grep --colour=auto'
+alias ':q=exit'
+
+# Pedantry
+alias 'whom=who'
+alias 'whence=which' # no, really. From where it comes - the full path
+
+# Beep command
+# Hang over from my time with dos
+# Used a lot to notify after long tasks...
+alias beep="echo -en '\007'"

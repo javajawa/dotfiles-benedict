@@ -29,15 +29,15 @@ highlight LineNr term=bold cterm=NONE ctermfg=DarkGrey ctermbg=NONE
 
 " Highlights lines in green that
 "  - Are over 80 characters long
-"  - Have trailing whitespace
+"  - Have trailing white space
 "  - Have tabs (except before all other characters)
 "  - Begin with spaces (probably meant to be tabs)
 highlight OverlongLine    ctermbg=Blue guibg=LightBlue
-au BufWinEnter * let w:m1=matchadd('OverlongLine', '\%<91v.\%>80v', -1)
+au BufWinEnter * let w:m1=matchadd('OverlongLine', '\%<111v.\%>100v', -1)
 highlight ExtraWhitespace ctermbg=Green guibg=LightGreen
 au BufWinEnter * let w:m2=matchadd('ExtraWhitespace', '\s\+$', -1)
-au BufWinEnter * let w:m3=matchadd('ExtraWhitespace', '[^\t]\zs\t(\t\+)?', -1)
-au BufWinEnter * let w:m4=matchadd('ExtraWhitespace', '^  \+', -1)
+au BufWinEnter * let w:m3=matchadd('ExtraWhitespace', '^\t+\s+', -1)
+au BufWinEnter * let w:m4=matchadd('ExtraWhitespace', '^[^\t]+\t+', -1)
 
 " Home/End/Up/Down act based on text wrapping
 " rather than on actual line wrapping. Useful for editing
@@ -86,3 +86,5 @@ set wildmenu
 
 au BufNewFile,BufRead httpd.conf,.htaccess,/etc/apcahe2/*.conf setf apache
 au BufNewFile,BufRead httpd.conf,.htaccess,/etc/apache2/*.conf set nospell
+au BufNewFile,BufRead *.py set expandtab
+au BufNewFile,BufRead *.yaml,*.yml set expandtab ts=2

@@ -1,0 +1,175 @@
+#---GIT AUTOMOATION-------------------------------------------------------
+# vim: nospell syntax=zsh
+
+
+function _z_git_config()
+{
+	REPOS_DIR="$HOME/src"
+}
+
+g()
+{
+	_z_git_config
+
+	local REPO="$1"
+	local NAME="${REPO#*:}"
+
+	if [ "${NAME%%/*}" = "kolt" ]
+	then
+		REPO="${REPO%kolt/*}argocd/${REPO#*kolt/}"
+	fi
+
+	if [ "${NAME%%/*}" = "argocd" ]
+	then
+		NAME="kolt/${NAME#argocd/}"
+	fi
+
+	local FOLDER="${REPOS_DIR}/${NAME}"
+
+	if [ -e "$FOLDER" ]
+	then
+		cd "$FOLDER"
+		return 0
+	fi
+
+	if [ "$REPO" = "${REPO#*:}" ]
+	then
+		if [ "${REPO%%/*}" = "gocomparegroup" ] || [ "${REPO%%/*}" = "javajawa" ]
+		then
+			REPO="git@github.com:${REPO%.git}.git"
+		else
+			REPO="git@gitlab.futurenet.com:${REPO%.git}.git"
+		fi
+	fi
+
+	git clone "$REPO" "$FOLDER" && cd "$FOLDER"
+}
+
+mr()
+{
+	local BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+	if [ $? -ne 0 ]
+	then
+		printf >&2 "Unable to determine a current branch. Is this really a git repo?\n"
+		return $?
+	fi
+
+	local REMOTE=$(git config --get "branch.${BRANCH}.remote")
+	REMOTE=${REMOTE:-origin}
+
+	local UPSTREAM=$(git config --get "branch.${BRANCH}.merge")
+	UPSTREAM=${UPSTREAM#refs/heads/}
+
+	local DEFAULT_BRANCH=$(git rev-parse --abbrev-ref "refs/remotes/$REMOTE/HEAD")
+	DEFAULT_BRANCH=${DEFAULT_BRANCH#$REMOTE/}
+	DEFUALT_BRANCH=${DEFAULT_BRANCH:-master}
+
+	if [ "$BRANCH" = "$DEFAULT_BRANCH" ] || [ "$UPSTREAM" = "$DEFAULT_BRANCH" ]
+	then
+		printf "Enter new branch name: "
+		read -r BRANCH
+
+		git checkout -b "$BRANCH"
+		unset UPSTREAM
+	fi
+
+	if [ -n "$UPSTREAM" ]
+	then
+		git push "$REMOTE" "${BRANCH}" -o merge_request.create -o "merge_request.target=${DEFAULT_BRANCH}"
+	else
+		git push "$REMOTE" "${BRANCH}:${BRANCH}" -u -o merge_request.create -o "merge_request.target=${DEFAULT_BRANCH}"
+	fi
+}
+
+git_update()
+{
+	local BRANCH=$(git branch --show-current)
+
+	if [ $? -ne 0 ]
+	then
+		X=$?
+		printf >&2 "Unable to determine a currnt branch. Is this really a git repo?\n"
+		return $X
+	fi
+
+	if [ -n "$(git status --porcelain)" ]
+	then
+		printf >&2 "Local changes detected, aborting\n"
+		return 1
+	fi
+
+	local REMOTE=$(git config --get "branch.${BRANCH}.remote")
+	REMOTE=${REMOTE:-origin}
+
+	local DEFAULT_BRANCH=$(git rev-parse --abbrev-ref "refs/remotes/$REMOTE/HEAD")
+	DEFAULT_BRANCH=${DEFAULT_BRANCH#$REMOTE/}
+	DEFUALT_BRANCH=${DEFAULT_BRANCH:-master}
+
+	git fetch --prune "$REMOTE" && \
+	git checkout "$DEFAULT_BRANCH" && \
+	git merge "$REMOTE/HEAD" --ff-only || return 1
+
+	local SELF=$(git rev-parse --symbolic-full-name HEAD)
+
+	git branch --format '%(refname)' --merged=HEAD | while read REF
+	do
+		if [ "$REF" != "$SELF" ]
+		then
+			git branch -d "${REF#refs/heads/}"
+		fi
+	done
+}
+
+get_gitlab_repos()
+{
+	_z_git_config
+
+	test -r ~/.config/gitlab-token && source ~/.config/gitlab-token
+
+	if [ -z "$GITLAB_TOKEN" ]
+	then
+		printf >&2 "GITLAB_TOKEN not set\n"
+		return 1
+	fi
+
+	typeset -aU ALL_REPOS=()
+	PAGE=0
+
+	while true
+	do
+		PAGE=$(( $PAGE + 1 ))
+
+		REPOS=("${(@f)$(curl -sS "https://gitlab.futurenet.com/api/v4/projects?archived=0&membership=1&per_page=100&page=${PAGE}&private_token=$GITLAB_TOKEN" | jq --raw-output '.[].path_with_namespace')}")
+		ALL_REPOS+=($REPOS)
+
+		if [ "${#REPOS}" -lt 100 ]
+		then
+			break
+		fi
+	done
+
+	printf >"$HOME/.zshcache/gitlab-repos" "%s" "$ALL_REPOS"
+	printf >&2 "Cached ${#ALL_REPOS} repos\n"
+}
+
+_g()
+{
+	_arguments '1: :->repo'
+	_z_git_config
+
+	if [ "$state" = "repo" ]
+	then
+		typeset -aU ALL_REPOS
+
+		LOCAL_REPOS=("${(@f)$(find "$REPOS_DIR" -maxdepth 3 -type d -name .git -print | sed -e "s@$REPOS_DIR/@@" -e 's@/.git@@')}")
+		REMOTE_REPOS=($(cat "$HOME/.zshcache/gitlab-repos"))
+
+		ALL_REPOS+=($LOCAL_REPOS)
+		ALL_REPOS+=($REMOTE_REPOS)
+
+		compadd "$@" $ALL_REPOS
+	fi
+}
+
+compdef _g g
