@@ -191,9 +191,9 @@ git_prompt()
 
 	DIR=$(git rev-parse --show-toplevel 2>/dev/null)
 
-	if [ -n "$DIR" ] && [ "$DIR" != "/home/benedict" ]
+	if [ -n "$DIR" ] && [ "$DIR" != "$HOME" ]
 	then
-		printf >&2 "[Entering git repo %s]\n" "$CURRENT_GIT_DIR"
+		printf >&2 "[Entering git repo %s]\n" "$DIR"
 
 		CURRENT_GIT_DIR=$DIR
 		PROMPT_INFO[git]=$(command git rev-parse --abbrev-ref HEAD)
