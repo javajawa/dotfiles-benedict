@@ -6,7 +6,7 @@ screen-select()
 
 	printf "\nn\tCreate New Session\n"
 	printf "s\tLaunch shell without screen\n"
-	if [ -f "$HOME/.Xdefaults" -a -x "$HOME/scripts/x" -a -z "$DISPLAY" ]; then
+	if command -v startx >/dev/null 2>/dev/null; then
 		printf "x\tLaunch X11\n"
 	fi
 	printf "q\tQuit\n"
@@ -37,8 +37,9 @@ screen-select()
 		elif [ $choice = 'n' ]; then
 			choice=0
 			break
-		elif [ $choice = 'x' -a -f "$HOME/.Xdefaults" -a -x "$HOME/scripts/x" -a -z "$DISPLAY" ]; then
-			exec nohup sh $HOME/scripts/x >/dev/null 2>&1
+		elif [ $choice = 'x' ] && command -v startx >/dev/null 2>/dev/null; then
+			TEMP=$(mktemp -t xorg.XXX)
+			exec startx 2>"$TEMP"
 		elif [ $choice = 'q' ]; then
 			exec /bin/false
 		fi

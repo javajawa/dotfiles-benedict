@@ -3,7 +3,9 @@ PATH="/home/benedict/.local/bin:$PATH"
 # Not an interactive shell? Time to leave...
 [ -z "$PS1" ] && return
 
-if test -z "$STY" && command -v screen >/dev/null 2>/dev/null
+test -r ~/.zshrc-local && source ~/.zshrc-local
+
+if test -z "$STY" && test -z "$DISPLAY" && command -v screen >/dev/null 2>/dev/null
 then
 	source ~/.config/zsh-functions/screen-select
 	screen-select && return
