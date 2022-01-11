@@ -76,9 +76,9 @@ mr()
 
 	if [ -n "$UPSTREAM" ]
 	then
-		command git push "$REMOTE" "${BRANCH}" -o merge_request.create -o "merge_request.target=${DEFAULT_BRANCH}"
+		command git push "$REMOTE" "${BRANCH}" -o merge_request.create -o "merge_request.target=${DEFAULT_BRANCH}" --no-verify
 	else
-		command git push "$REMOTE" "${BRANCH}:${BRANCH}" -u -o merge_request.create -o "merge_request.target=${DEFAULT_BRANCH}"
+		command git push "$REMOTE" "${BRANCH}:${BRANCH}" -u -o merge_request.create -o "merge_request.target=${DEFAULT_BRANCH}" --no-verify
 	fi
 }
 
