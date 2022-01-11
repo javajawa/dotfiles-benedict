@@ -1,4 +1,4 @@
-PATH="/home/benedict/.local/bin:$PATH"
+PATH="$HOME/.local/bin:$PATH"
 
 # Not an interactive shell? Time to leave...
 [ -z "$PS1" ] && return
