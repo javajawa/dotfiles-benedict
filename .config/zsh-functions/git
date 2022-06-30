@@ -88,14 +88,31 @@ git_update()
 		return 1
 	fi
 
-	local REMOTE=$(command git config --get "branch.${BRANCH}.remote")
-	REMOTE=${REMOTE:-origin}
+	local REMOTE
+	local DEFAULT_BRANCH
 
-	local DEFAULT_BRANCH=$(command git rev-parse --abbrev-ref "refs/remotes/$REMOTE/HEAD")
-	DEFAULT_BRANCH=${DEFAULT_BRANCH#$REMOTE/}
-	DEFUALT_BRANCH=${DEFAULT_BRANCH:-master}
+	# See if the user has set an explicit default remote.
+	REMOTE=$(command git config --get checkout.defaultRemote)
 
-	command git fetch --prune "$REMOTE" && \
+	if [ -z "$REMOTE" ]
+	then
+		printf >&2 "Warning: no default remote set.\n  - Use 'git config checkout.defaultRemote [origin]' or so.\n"
+		REMOTE=$(command git config --get "branch.${BRANCH}.remote")
+		REMOTE=${REMOTE:-origin}
+	fi
+
+	# Look for a HEAD branch to indicate default branch
+	DEFAULT_BRANCH=$(git rev-parse --symbolic-full-name --abbrev-ref origin/HEAD)
+
+	if [ -n "$DEFAULT_BRANCH" ] && [ "$DEFAULT_BRANCH" != "${DEFAULT_BRANCH#${REMOTE}/}" ]
+	then
+		DEFAULT_BRANCH=${DEFAULT_BRANCH#${REMOTE}/}
+	else
+		printf >&2 "Warning: default remote %s has no HEAD branch (or it is weird).\nUse 'git remote set-head %s [mainline]' or so.\n" "$REMOTE" "$REMOTE"
+		DEFAULT_BRANCH="master"  # Because this still the default branch at work
+	fi
+
+	command git fetch --prune --all && \
 	git checkout "$DEFAULT_BRANCH" && \
 	command git merge "$REMOTE/HEAD" --ff-only || return 1
 
@@ -174,6 +191,7 @@ git_prompt()
 
 		printf >&2 "[Leaving git repo %s]\n" "$CURRENT_GIT_DIR"
 
+		unset CURRENT_GIT_DIR
 		unset "PROMPT_INFO[git]"
 		set_prompt
 	fi
