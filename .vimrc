@@ -87,4 +87,4 @@ set wildmenu
 au BufNewFile,BufRead httpd.conf,.htaccess,/etc/apcahe2/*.conf setf apache
 au BufNewFile,BufRead httpd.conf,.htaccess,/etc/apache2/*.conf set nospell
 au BufNewFile,BufRead *.py set expandtab ts=4
-au BufNewFile,BufRead *.yaml,*.yml set expandtab ts=2
+au BufNewFile,BufRead *.yaml,*.yml,*.tf set expandtab ts=2
