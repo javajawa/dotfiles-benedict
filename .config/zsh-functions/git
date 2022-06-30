@@ -13,17 +13,6 @@ g()
 
 	local REPO="$1"
 	local NAME="${REPO#*:}"
-
-	if [ "${NAME%%/*}" = "kolt" ]
-	then
-		REPO="${REPO%kolt/*}argocd/${REPO#*kolt/}"
-	fi
-
-	if [ "${NAME%%/*}" = "argocd" ]
-	then
-		NAME="kolt/${NAME#argocd/}"
-	fi
-
 	local FOLDER="${REPOS_DIR}/${NAME}"
 
 	if [ -e "$FOLDER" ]
