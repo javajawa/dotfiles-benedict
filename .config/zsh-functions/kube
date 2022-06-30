@@ -38,4 +38,9 @@ allkubes()
 	done
 }
 
+kubeshell()
+{
+	kubectl run "${USER%%.*}-temp-shell" --rm -i --tty --image debian:latest -- bash
+}
+
 compdef _kubectx kubectx
