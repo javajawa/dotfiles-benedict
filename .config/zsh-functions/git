@@ -82,10 +82,25 @@ git_update()
 		return $X
 	fi
 
-	if [ -n "$(command git status --porcelain)" ]
+	local PORCELAIN_STATUS="$(command git status --porcelain)"
+
+	if [ -n "$PORCELAIN_STATUS" ]
 	then
-		printf >&2 "Local changes detected, aborting\n"
-		return 1
+		if [ -n "$(printf "%s" "$PORCELAIN_STATUS" | grep -v "^??")" ]
+		then
+			printf >&2 "Local changes detected, aborting\n"
+			return 1
+		else
+			printf >&2 "%s\n" "$PORCELAIN_STATUS"
+			printf >&2 "Untracked changes detected, process? [Yn] > "
+			local CHOICE
+			read CHOICE
+
+			if [ "$CHOICE" = "n" ]
+			then
+				return 1
+			fi
+		fi
 	fi
 
 	local REMOTE
@@ -96,20 +111,43 @@ git_update()
 
 	if [ -z "$REMOTE" ]
 	then
-		printf >&2 "Warning: no default remote set.\n  - Use 'git config checkout.defaultRemote [origin]' or so.\n"
 		REMOTE=$(command git config --get "branch.${BRANCH}.remote")
 		REMOTE=${REMOTE:-origin}
+
+		printf >&2 "Warning: no default remote set. What should I use? [%s] > " "$REMOTE"
+		local SET_REMOTE
+		read SET_REMOTE
+
+		REMOTE=${SET_REMOTE:-$REMOTE}
+
+		command git config checkout.defaultRemote "$REMOTE"
+		unset SET_REMOTE
 	fi
 
 	# Look for a HEAD branch to indicate default branch
-	DEFAULT_BRANCH=$(git rev-parse --symbolic-full-name --abbrev-ref origin/HEAD)
+	DEFAULT_BRANCH=$(git rev-parse --verify --symbolic-full-name --abbrev-ref origin/HEAD)
 
 	if [ -n "$DEFAULT_BRANCH" ] && [ "$DEFAULT_BRANCH" != "${DEFAULT_BRANCH#${REMOTE}/}" ]
 	then
 		DEFAULT_BRANCH=${DEFAULT_BRANCH#${REMOTE}/}
 	else
-		printf >&2 "Warning: default remote %s has no HEAD branch (or it is weird).\nUse 'git remote set-head %s [mainline]' or so.\n" "$REMOTE" "$REMOTE"
-		DEFAULT_BRANCH="master"  # Because this still the default branch at work
+		printf >&2 "Warning: default remote %s has no HEAD branch (or it is weird).\n"
+
+		for DEFAULT_BRANCH in mainline develop main master
+		do
+			if [ -n $(git rev-parse --verify "$BRANCH" 2>/dev/null) ]
+			then
+				break
+			fi
+		done
+
+		printf >&2 "What value should I use for HEAD? [%s] > " "$DEFUALT_BRANCH"
+		local SET_BRANCH
+		read SET_BRANCH
+
+		DEFAULT_BRANCH=${SET_BRANCH:-$DEFAULT_BRANCH}
+		command git remote set-head "$ORIGIN" "$DEFAULT_BRANCH"
+		unset SET_BRANCH
 	fi
 
 	command git fetch --prune --all && \
