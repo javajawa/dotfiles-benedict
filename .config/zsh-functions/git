@@ -83,13 +83,29 @@ git_update()
 	fi
 
 	local PORCELAIN_STATUS="$(command git status --porcelain)"
+	local STASH=0
 
 	if [ -n "$PORCELAIN_STATUS" ]
 	then
 		if [ -n "$(printf "%s" "$PORCELAIN_STATUS" | grep -v "^??")" ]
 		then
-			printf >&2 "Local changes detected, aborting\n"
-			return 1
+			printf >&2 "%s\n" "$PORCELAIN_STATUS"
+			printf >&2 "Local changes detected. Enter [stash] to stash (otherwise will abort) > "
+			local CHOICE
+			read CHOICE
+
+			if [ "$CHOICE" != "stash" ]
+			then
+				return 1
+			fi
+
+			if ! git stash push --include-untracked
+			then
+				printf >&2 "Error stashing changes"
+				return 1
+			fi
+
+			STASH=1
 		else
 			printf >&2 "%s\n" "$PORCELAIN_STATUS"
 			printf >&2 "Untracked changes detected, process? [Yn] > "
@@ -163,6 +179,11 @@ git_update()
 			command git branch -d "${REF#refs/heads/}"
 		fi
 	done
+
+	if [ "$STASH" = 1 ]
+	then
+		git stash pop
+	fi
 }
 
 get_gitlab_repos()
