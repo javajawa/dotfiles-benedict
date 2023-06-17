@@ -191,6 +191,30 @@ git_redo()
 	git add -u && git commit --amend --no-edit && git push --force-with-lease
 }
 
+git_stati()
+{
+	_z_git_config
+
+	local GITDIR
+
+	find "$REPOS_DIR" -maxdepth 5 -name .git | sort | while read GITDIR
+	do
+		local WORKDIR=${GITDIR%/.git}
+		local NAME="$GITDIR"
+		NAME=${NAME%/.git}
+		NAME=${NAME#$REPOS_DIR/}
+
+		printf "%-40.40s " "$NAME"
+
+		if [ -n "$(command git "--git-dir=$GITDIR" "--work-tree=$WORKDIR" status --porcelain)" ]
+		then
+			printf "\e[1;31mdirty\e[0m "
+		fi
+
+		printf "\n"
+	done
+}
+
 get_gitlab_repos()
 {
 	_z_git_config
