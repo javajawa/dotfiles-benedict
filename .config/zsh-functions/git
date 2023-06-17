@@ -13,7 +13,7 @@ g()
 
 	local REPO="$1"
 	local NAME="${REPO#*:}"
-	local FOLDER="${REPOS_DIR}/${NAME}"
+	local FOLDER="${REPOS_DIR}/${NAME%.git}"
 
 	if [ -e "$FOLDER" ]
 	then
