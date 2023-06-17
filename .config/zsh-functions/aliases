@@ -8,12 +8,12 @@ chmog()
 
 l()
 {
-	command ls -h -l -G $*
+	command ls -h -l --color "$@"
 }
 
 ll()
 {
-	find $* -exec ls -ld -G '{}' \+ | more
+	find "$@" -exec ls -ld --color=always '{}' \+ | more
 }
 
 cd()
@@ -50,7 +50,7 @@ less()
 }
 
 alias 'lk=l -A'
-alias 'ls=ls -G'
+alias 'ls=ls --color'
 alias 'grep=grep --colour=auto'
 alias ':q=exit'
 

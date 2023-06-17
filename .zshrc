@@ -20,8 +20,12 @@ setopt ksh_autoload
 setopt noflowcontrol
 
 # History configuration
-setopt appendhistory
+setopt APPEND_HISTORY
 setopt sharehistory
+setopt extendedhistory
+setopt nohistbeep
+setopt histignoredups
+
 HISTFILE=~/.config/zsh-history/default
 HISTSIZE=5000
 SAVEHIST=5000
