@@ -186,6 +186,11 @@ git_update()
 	fi
 }
 
+git_redo()
+{
+	git add -u && git commit --amend --no-edit && git push --force-with-lease
+}
+
 get_gitlab_repos()
 {
 	_z_git_config
