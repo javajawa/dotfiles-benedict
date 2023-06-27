@@ -299,11 +299,13 @@ git_prompt()
 git()
 {
 	command git "$@"
+	RESULT=$?
 	if [ -n "$CURRENT_GIT_DIR" ]
 	then
 		PROMPT_INFO[git]=$(command git rev-parse --abbrev-ref HEAD)
 		set_prompt
 	fi
+	return $RESULT
 }
 
 add-zsh-hook chpwd git_prompt
