@@ -52,14 +52,14 @@ mr()
 
 	local DEFAULT_BRANCH=$(command git rev-parse --abbrev-ref "refs/remotes/$REMOTE/HEAD")
 	DEFAULT_BRANCH=${DEFAULT_BRANCH#$REMOTE/}
-	DEFUALT_BRANCH=${DEFAULT_BRANCH:-master}
+	DEFAULT_BRANCH=${DEFAULT_BRANCH:-master}
 
 	if [ "$BRANCH" = "$DEFAULT_BRANCH" ] || [ "$UPSTREAM" = "$DEFAULT_BRANCH" ]
 	then
 		printf "Enter new branch name: "
 		read -r BRANCH
 
-		git checkout -b "$BRANCH"
+		command git checkout -b "$BRANCH"
 		unset UPSTREAM
 	fi
 
@@ -99,7 +99,7 @@ git_update()
 				return 1
 			fi
 
-			if ! git stash push --include-untracked
+			if ! command git stash push --include-untracked
 			then
 				printf >&2 "Error stashing changes"
 				return 1
@@ -141,33 +141,33 @@ git_update()
 	fi
 
 	# Look for a HEAD branch to indicate default branch
-	DEFAULT_BRANCH=$(git rev-parse --verify --symbolic-full-name --abbrev-ref origin/HEAD)
+	DEFAULT_BRANCH=$(git rev-parse --verify --symbolic-full-name --abbrev-ref "$REMOTE/HEAD")
 
 	if [ -n "$DEFAULT_BRANCH" ] && [ "$DEFAULT_BRANCH" != "${DEFAULT_BRANCH#${REMOTE}/}" ]
 	then
 		DEFAULT_BRANCH=${DEFAULT_BRANCH#${REMOTE}/}
 	else
-		printf >&2 "Warning: default remote %s has no HEAD branch (or it is weird).\n"
+		printf >&2 "Warning: default remote %s has no HEAD branch (or it is weird).\n" "$REMOTE"
 
 		for DEFAULT_BRANCH in mainline develop main master
 		do
-			if [ -n $(git rev-parse --verify "$BRANCH" 2>/dev/null) ]
+			if command git show-ref --quiet --verify "refs/remotes/$REMOTE/$DEFAULT_BRANCH" >/dev/null
 			then
 				break
 			fi
 		done
 
-		printf >&2 "What value should I use for HEAD? [%s] > " "$DEFUALT_BRANCH"
+		printf >&2 "What value should I use for HEAD? [%s] > " "$DEFAULT_BRANCH"
 		local SET_BRANCH
 		read SET_BRANCH
 
 		DEFAULT_BRANCH=${SET_BRANCH:-$DEFAULT_BRANCH}
-		command git remote set-head "$ORIGIN" "$DEFAULT_BRANCH"
+		command git remote set-head "$REMOTE" "$DEFAULT_BRANCH"
 		unset SET_BRANCH
 	fi
 
 	command git fetch --prune --all && \
-	git checkout "$DEFAULT_BRANCH" && \
+	command git checkout "$DEFAULT_BRANCH" && \
 	command git merge "$REMOTE/HEAD" --ff-only || return 1
 
 	local SELF=$(command git rev-parse --symbolic-full-name HEAD)
@@ -182,13 +182,13 @@ git_update()
 
 	if [ "$STASH" = 1 ]
 	then
-		git stash pop
+		command git stash pop
 	fi
 }
 
 git_redo()
 {
-	git add -u && git commit --amend --no-edit && git push --force-with-lease
+	command git add -u && command git commit --amend --no-edit && command git push --force-with-lease
 }
 
 git_stati()
@@ -284,7 +284,7 @@ git_prompt()
 		set_prompt
 	fi
 
-	DIR=$(git rev-parse --show-toplevel 2>/dev/null)
+	DIR=$(command git rev-parse --show-toplevel 2>/dev/null)
 
 	if [ -n "$DIR" ] && [ "$DIR" != "$HOME" ]
 	then
