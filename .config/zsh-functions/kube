@@ -24,7 +24,7 @@ _kubectx()
 
 allkubes()
 {
-	if [ "$1" != "get" ]
+	if [ "$1" != "get" ] && [ "$1" != "rollout" ] && [ "$1" != "logs" ] && [ "$1" != "version" ]
 	then
 		printf >&2 "%s: verb '%s' not supoprted, must be one of 'get'.\n" "$0" "$1"
 		return 1
@@ -44,3 +44,4 @@ kubeshell()
 }
 
 compdef _kubectx kubectx
+compdef _kubectl allkubes

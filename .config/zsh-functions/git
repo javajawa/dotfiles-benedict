@@ -168,7 +168,7 @@ git_update()
 
 	command git fetch --prune --all && \
 	command git checkout "$DEFAULT_BRANCH" && \
-	command git merge "$REMOTE/HEAD" --ff-only || return 1
+	git merge "$REMOTE/HEAD" --ff-only || return 1
 
 	local SELF=$(command git rev-parse --symbolic-full-name HEAD)
 
