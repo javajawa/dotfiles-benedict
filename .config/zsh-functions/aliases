@@ -1,6 +1,9 @@
 #---SIMPLE ALIASES------------------------------------------------------
 # vim: syntax=zsh
 
+command -v kitten >/dev/null 2>/dev/null
+readonly __KITTENS=$?
+
 chmog()
 {
 	printf "zsh: kitteh not found: $2\n"
@@ -31,11 +34,21 @@ cat()
 {
 	# If cat(1) is being used in actual concatenation mode,
 	# don't do anything clever!!
-	if [ -z "$2" -a -d "$1" ]
+	if [ "$#" -gt 1 ]
+	then
+		command cat "$@"
+	elif [ -d "$1" ]
 	then
 		l "$1"
 	else
-		command cat "$@"
+		local MIME=$(file --brief --mime "$1")
+
+		if [ "$__KITTENS" -eq 0 ] && [ "${MIME%%/*}" = "image" ]
+		then
+			command kitten icat "$1"
+		else
+			command cat "$@"
+		fi
 	fi
 }
 
