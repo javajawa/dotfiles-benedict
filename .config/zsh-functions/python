@@ -47,3 +47,37 @@ activate_venv()
 add-zsh-hook chpwd activate_venv
 VIRTUAL_ENV=
 activate_venv
+
+python()
+{
+	_auto_venv
+	command python3 "$@"
+}
+
+pip()
+{
+	_auto_venv
+	command pip "$@"
+}
+
+_auto_venv()
+{
+	test -n "$VIRTUAL_ENV" && return 0
+
+	local readonly GITDIR=$(command git rev-parse --show-toplevel 2>/dev/null)
+
+	test -z "$GITDIR" && return 0
+
+	printf >&2 "Create venv in %s? [Yn]" "$GITDIR/venv"
+	read -r CREATE
+
+	test "$CREATE" = "n" || test "$CREATE" = "N" || test "$CREATE" = "no"
+
+	if [ $? -ne 0 ]
+	then
+		command python3 -m venv "$GITDIR/venv"
+		activate_venv
+	fi
+}
+
+alias python3=python
