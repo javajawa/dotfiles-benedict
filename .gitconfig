@@ -1,0 +1,23 @@
+[user]
+	email = ben.harcourt@harcourtprogramming.co.uk
+	name = Benedict Harcourt
+[core]
+	excludesfile = /home/benedict/.gitignore_global
+
+[commit]
+	verbose = 1
+[init]
+	defaultBranch = mainline
+[pull]
+	ff = only
+[push]
+	autoSetupRemote = true
+[diff]
+	tool = kitty
+[difftool]
+	prompt = false
+	trustExitCode = true
+[difftool "kitty"]
+	cmd = kitten diff $LOCAL $REMOTE
+[alias]
+	idiff = difftool --no-symlinks --dir-diff
