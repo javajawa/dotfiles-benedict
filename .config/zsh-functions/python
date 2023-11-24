@@ -50,23 +50,23 @@ activate_venv
 
 python()
 {
-	_auto_venv
+	venv
 	command python3 "$@"
 }
 
 pip()
 {
-	_auto_venv
+	venv
 	command pip "$@"
 }
 
-_auto_venv()
+venv()
 {
 	test -n "$VIRTUAL_ENV" && return 0
 
-	local readonly GITDIR=$(command git rev-parse --show-toplevel 2>/dev/null)
-
-	test -z "$GITDIR" && return 0
+	local GITDIR=$(command git rev-parse --show-toplevel 2>/dev/null)
+	GITDIR=${GITDIR:-$(pwd)}
+	readonly GITDIR
 
 	printf >&2 "Create venv in %s? [Yn]" "$GITDIR/venv"
 	read -r CREATE
@@ -75,7 +75,7 @@ _auto_venv()
 
 	if [ $? -ne 0 ]
 	then
-		command python3 -m venv "$GITDIR/venv"
+		command python3 -m venv --upgrade-deps --symlinks --clear "$GITDIR/venv"
 		activate_venv
 	fi
 }
