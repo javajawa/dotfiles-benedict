@@ -1,0 +1,22 @@
+#!/bin/sh
+
+if [ -n "$SSH_AUTH_SOCK" -a -e "$SSH_AUTH_SOCK" ]
+then
+	if ! ssh-add -l >/dev/null 2>/dev/null
+	then
+		ssh-add
+	fi
+fi
+
+if [ $# -eq 1 ]
+then
+	HOST=${1}
+	HOST=${HOST#http://}
+	HOST=${HOST#https://}
+	HOST=${HOST#ssh://}
+	HOST=${HOST%/}
+
+	exec /usr/bin/ssh "$HOST"
+fi
+
+exec /usr/bin/ssh "$@"

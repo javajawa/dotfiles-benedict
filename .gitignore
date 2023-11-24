@@ -8,6 +8,8 @@
 !/.gitignore_global
 
 !/.config
+!/.config/bin
+!/.config/bin/*
 !/.config/zsh-functions
 !/.config/zsh-functions/*
 
