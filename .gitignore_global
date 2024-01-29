@@ -3,6 +3,7 @@
 venv/
 __pycache__/
 node_modules/
+.terraform/
 *.egg-info/
 
 .workspace

@@ -1,21 +1,27 @@
 [user]
-	email = ben.harcourt@harcourtprogramming.co.uk
+	email = benedict.harcourt@futurenet.com
 	name = Benedict Harcourt
-	signingkey = /home/benedict/.ssh/id_ed25519.pub
+	signingkey = /Users/benedict.harcourt/.ssh/id_ed25519.pub
 [core]
-	excludesfile = /home/benedict/.gitignore_global
+	excludesFile = /Users/benedict.harcourt/.gitignore_global
 
 [commit]
 	verbose = 1
 	gpgsign = 1
 [gpg]
 	format = ssh
+[gpg "ssh"]
+	program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+	allowedSignersFile = /Users/benedict.harcourt/.ssh/allowed_signers
+
 [init]
 	defaultBranch = mainline
+
 [pull]
 	ff = only
 [push]
 	autoSetupRemote = true
+
 [diff]
 	tool = kitty
 [difftool]
