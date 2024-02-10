@@ -1,11 +1,15 @@
 [user]
 	email = ben.harcourt@harcourtprogramming.co.uk
 	name = Benedict Harcourt
+	signingkey = /home/benedict/.ssh/id_ed25519.pub
 [core]
 	excludesfile = /home/benedict/.gitignore_global
 
 [commit]
 	verbose = 1
+	gpgsign = 1
+[gpg]
+	format = ssh
 [init]
 	defaultBranch = mainline
 [pull]
