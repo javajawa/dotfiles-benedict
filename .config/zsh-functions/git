@@ -228,6 +228,8 @@ get_gitlab_repos()
 	fi
 
 	typeset -aU ALL_REPOS=()
+	local LOCAL_REPOS=("${(@f)$(find "$REPOS_DIR" -mindepth 2 -maxdepth 4 -type d -name .git -print | sed -e "s@$REPOS_DIR/@@" -e 's@/.git@@')}")
+	ALL_REPOS+=($LOCAL_REPOS)
 	PAGE=0
 
 	while true
@@ -256,11 +258,11 @@ _g()
 	then
 		typeset -aU ALL_REPOS
 
-		LOCAL_REPOS=("${(@f)$(find "$REPOS_DIR" -maxdepth 3 -type d -name .git -print | sed -e "s@$REPOS_DIR/@@" -e 's@/.git@@')}")
-		REMOTE_REPOS=($(cat "$HOME/.zshcache/gitlab-repos"))
+		#LOCAL_REPOS=("${(@f)$(find "$REPOS_DIR" -mindepth 2 -maxdepth 4 -type d -name .git -print | sed -e "s@$REPOS_DIR/@@" -e 's@/.git@@')}")
+		ALL_REPOS=($(cat "$HOME/.zshcache/gitlab-repos"))
 
-		ALL_REPOS+=($LOCAL_REPOS)
-		ALL_REPOS+=($REMOTE_REPOS)
+		#ALL_REPOS+=($LOCAL_REPOS)
+		#ALL_REPOS+=($REMOTE_REPOS)
 
 		compadd "$@" $ALL_REPOS
 	fi

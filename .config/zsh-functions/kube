@@ -32,9 +32,9 @@ allkubes()
 
 	for CONTEXT in $(kubectl config get-contexts -o name)
 	do
-		printf " === %s ===\n" "$CONTEXT"
+		printf >&2 " === %s ===\n" "$CONTEXT"
 		kubectl "--context=$CONTEXT" "$@"
-		printf "\n"
+		printf >&2 "\n"
 	done
 }
 
