@@ -18,7 +18,7 @@ activate_venv()
 
 		unset VENV_NAME
 		unset VIRTUAL_ENV
-		unset PYTHON_PATH
+		unset PYTHONPATH
 
 		export PATH=$DEFAULT_PATH
 
@@ -35,10 +35,19 @@ activate_venv()
 		export PATH="${CURR_DIR}venv/bin:$DEFAULT_PATH"
 		export PROMPT_INFO[venv]="$(basename ${CURR_DIR})"
 
+		local _PY_PATH=""
+
+		if [ -d "${CURR_DIR}tests" ]
+		then
+			_PY_PATH="${CURR_DIR}tests:${_PY_PATH}"
+		fi
 		if [ -d "${CURR_DIR}src" ]
 		then
-			export PYTHONPATH="${CURR_DIR}src"
+			_PY_PATH="${CURR_DIR}src:${_PY_PATH}"
 		fi
+
+		PYTHONPATH=${_PY_PATH%:}
+		export PYTHONPATH
 
 		set_prompt
 	fi
