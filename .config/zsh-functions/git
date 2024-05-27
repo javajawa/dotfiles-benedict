@@ -71,6 +71,11 @@ mr()
 	fi
 }
 
+git_last_commit()
+{
+	git log -1 --format="%s%n%n%b" ${1:-"HEAD"}
+}
+
 git_update()
 {
 	local BRANCH=$(command git branch --show-current)
