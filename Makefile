@@ -19,7 +19,7 @@ home/benedict/%: %
 	cp "$<" "$@"
 
 %: $(PACKAGE_DATA)/%
-	gzip "$<" -c >"$@"
+	cp "$<" "$@"
 
 manifest: $(DATA_FILES)
 	find ./home ./usr -mindepth 1 ! -name .gitkeep >"$@"
