@@ -1,7 +1,7 @@
 [user]
 	email = benedict.harcourt@futurenet.com
 	name = Benedict Harcourt
-	signingkey = /Users/benedict.harcourt/.ssh/id_ed25519.pub
+	signingkey = ~/.ssh/id_ed25519.pub
 [core]
 	excludesFile = /Users/benedict.harcourt/.gitignore_global
 
@@ -10,9 +10,6 @@
 	gpgsign = 1
 [gpg]
 	format = ssh
-[gpg "ssh"]
-	program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
-	allowedSignersFile = /Users/benedict.harcourt/.ssh/allowed_signers
 
 [init]
 	defaultBranch = mainline
