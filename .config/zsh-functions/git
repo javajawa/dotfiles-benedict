@@ -220,35 +220,32 @@ git_stati()
 	done
 }
 
-get_gitlab_repos()
+update_repo_cache()
 {
 	_z_git_config
 
 	test -r ~/.config/gitlab-token && source ~/.config/gitlab-token
 
-	if [ -z "$GITLAB_TOKEN" ]
-	then
-		printf >&2 "GITLAB_TOKEN not set\n"
-		return 1
-	fi
-
 	typeset -aU ALL_REPOS=()
 	local LOCAL_REPOS=("${(@f)$(find "$REPOS_DIR" -mindepth 2 -maxdepth 4 -type d -name .git -print | sed -e "s@$REPOS_DIR/@@" -e 's@/.git@@')}")
 	ALL_REPOS+=($LOCAL_REPOS)
-	PAGE=0
 
-	while true
-	do
-		PAGE=$(( $PAGE + 1 ))
+	if [ -n "$GITLAB_TOKEN" ]
+	then
+		PAGE=0
+		while true
+		do
+			PAGE=$(( $PAGE + 1 ))
 
-		REPOS=("${(@f)$(curl -sS "https://gitlab.futurenet.com/api/v4/projects?archived=0&membership=1&per_page=100&page=${PAGE}&private_token=$GITLAB_TOKEN" | jq --raw-output '.[].path_with_namespace')}")
-		ALL_REPOS+=($REPOS)
+			REPOS=("${(@f)$(curl -sS "https://gitlab.futurenet.com/api/v4/projects?archived=0&membership=1&per_page=100&page=${PAGE}&private_token=$GITLAB_TOKEN" | jq --raw-output '.[].path_with_namespace')}")
+			ALL_REPOS+=($REPOS)
 
-		if [ "${#REPOS}" -lt 100 ]
-		then
-			break
-		fi
-	done
+			if [ "${#REPOS}" -lt 100 ]
+			then
+				break
+			fi
+		done
+	fi
 
 	printf >"$HOME/.zshcache/gitlab-repos" "%s" "$ALL_REPOS"
 	printf >&2 "Cached ${#ALL_REPOS} repos\n"
