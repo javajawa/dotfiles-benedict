@@ -6,6 +6,7 @@
 ./home/benedict/.config/zsh-functions/prompt
 ./home/benedict/.config/zsh-functions/python
 ./home/benedict/.config/zsh-functions/screen-select
+./home/benedict/.config/zsh-cache/.gitkeep
 ./home/benedict/.config/zsh-history/.gitkeep
 ./home/benedict/.gitconfig
 ./home/benedict/.gitignore

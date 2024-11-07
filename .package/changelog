@@ -1,3 +1,10 @@
+dotfiles-benedict (2.0-2) stable
+
+  * Update pre-inst for debian group `ssh` group renamed to `_ssh`.
+  * Add `.config/zsh-cache` to the package manifests.
+
+ -- Benedict Harcourt <ben@tea-cats.co.uk>  Thu, 07 Nov 2024 09:40:20 +0000
+
 dotfiles-benedict (2.0-1) stable
 
   * First formal build of dotfiles-benedict since local dev work
