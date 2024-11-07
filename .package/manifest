@@ -1,4 +1,5 @@
 ./home/benedict/.config/bin/ssh
+./home/benedict/.config/htop/htoprc
 ./home/benedict/.config/zsh-functions/aliases
 ./home/benedict/.config/zsh-functions/compinit
 ./home/benedict/.config/zsh-functions/git

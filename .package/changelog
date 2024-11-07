@@ -1,3 +1,9 @@
+dotfiles-benedict (2.0-3) stable
+
+  * Add htoprc to the list of managed files
+
+ -- Benedict Harcourt <ben@tea-cats.co.uk>  Thu, 07 Nov 2024 09:53:10 +0000
+
 dotfiles-benedict (2.0-2) stable
 
   * Update pre-inst for debian group `ssh` group renamed to `_ssh`.
