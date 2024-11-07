@@ -1,6 +1,9 @@
 # vim: nospell
 *
 
+!/debian
+!/debian/control
+!/debian/preinst
 !/.package
 !/.package/*
 !/Makefile
