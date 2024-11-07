@@ -247,7 +247,7 @@ update_repo_cache()
 		done
 	fi
 
-	printf >"$HOME/.zshcache/gitlab-repos" "%s" "$ALL_REPOS"
+	printf >"$HOME/.config/zsh-cache/gitlab-repos" "%s" "$ALL_REPOS"
 	printf >&2 "Cached ${#ALL_REPOS} repos\n"
 }
 
@@ -261,7 +261,7 @@ _g()
 		typeset -aU ALL_REPOS
 
 		#LOCAL_REPOS=("${(@f)$(find "$REPOS_DIR" -mindepth 2 -maxdepth 4 -type d -name .git -print | sed -e "s@$REPOS_DIR/@@" -e 's@/.git@@')}")
-		ALL_REPOS=($(cat "$HOME/.zshcache/gitlab-repos"))
+		ALL_REPOS=($(cat "$HOME/.config/zsh-cache/gitlab-repos"))
 
 		#ALL_REPOS+=($LOCAL_REPOS)
 		#ALL_REPOS+=($REMOTE_REPOS)

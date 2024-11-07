@@ -3,7 +3,7 @@
 
 zstyle ':completion:*' verbose yes
 zstyle ':completion:*' use-cache on
-zstyle ':completion:*' cache-path ~/.zshcache
+zstyle ':completion:*' cache-path ~/.config/zsh-cache
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 
 zstyle ':completion:*' completer _complete _match _approximate

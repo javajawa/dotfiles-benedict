@@ -1,6 +1,10 @@
 # vim: nospell
 *
 
+!/.package
+!/.package/*
+!/Makefile
+
 !.gitkeep
 
 !/.gitconfig
@@ -12,6 +16,7 @@
 !/.config/bin/*
 !/.config/zsh-functions
 !/.config/zsh-functions/*
+!/.config/zsh-cache
 
 !/.ssh
 !/.ssh/config
