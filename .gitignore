@@ -17,6 +17,8 @@
 !/.config/zsh-functions
 !/.config/zsh-functions/*
 !/.config/zsh-cache
+!/.config/htop
+!/.config/htop/htoprc
 
 !/.ssh
 !/.ssh/config
