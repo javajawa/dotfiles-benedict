@@ -41,8 +41,8 @@ bindkey "^[[4~" end-of-line
 bindkey "^[^[[C" forward-word
 bindkey "^[^[[D" backward-word
 
-export EDITOR="vim"
-export COLORFGBG="default;default"
+EDITOR="vim"
+COLORFGBG="default;default"
 
 source ~/.config/zsh-functions/aliases
 source ~/.config/zsh-functions/compinit

@@ -18,5 +18,5 @@ set_prompt()
 		OUTPUT="${OUTPUT}($KEY:$PROMPT_INFO[$KEY]) "
 	done
 
-	export PS1="${OUTPUT}${DEFAULT_PS1}"
+	PS1="${OUTPUT}${DEFAULT_PS1}"
 }
