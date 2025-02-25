@@ -21,6 +21,10 @@
 
 [diff]
 	tool = kitty
+	algorithm = histogram
+	colorMoved = plain
+	mnemonicPrefix = true
+	renames = true
 [difftool]
 	prompt = false
 	trustExitCode = true
@@ -28,3 +32,10 @@
 	cmd = kitten diff $LOCAL $REMOTE
 [alias]
 	idiff = difftool --no-symlinks --dir-diff
+[tag]
+	sort = version:refname
+[help]
+	autocorrect = prompt
+[rerere]
+	enabled = true
+	autoupdate = true
