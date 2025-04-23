@@ -197,6 +197,11 @@ git_update()
 
 git_redo()
 {
+	if [ "$CURRENT_GIT_DIR" = "$HOME" ]
+	then
+		printf >&2 "Refusing to run git_redo on ~\n"
+		return 1
+	fi
 	command git add -u && command git commit --amend --no-edit && command git push --force-with-lease
 }
 
@@ -283,7 +288,12 @@ git_prompt()
 
 	if [ -n "$CURRENT_GIT_DIR" ]
 	then
-		test "${CURR_DIR#$CURRENT_GIT_DIR}" != "${CURR_DIR}" && return 0
+		if [ "$CURRENT_GIT_DIR" = "$HOME" ]
+		then
+			test "$HOME" = "$(command git rev-parse --show-toplevel 2>/dev/null)" && return 0
+		else
+			test "${CURR_DIR#$CURRENT_GIT_DIR}" != "${CURR_DIR}" && return 0
+		fi
 
 		printf >&2 "[Leaving git repo %s]\n" "$CURRENT_GIT_DIR"
 
@@ -292,15 +302,18 @@ git_prompt()
 		set_prompt
 	fi
 
-	DIR=$(command git rev-parse --show-toplevel 2>/dev/null)
+	local DIR=$(command git rev-parse --show-toplevel 2>/dev/null)
 
-	if [ -n "$DIR" ] && [ "$DIR" != "$HOME" ]
+	if [ -n "$DIR" ]
 	then
-		printf >&2 "[Entering git repo %s]\n" "$DIR"
-
 		CURRENT_GIT_DIR=$DIR
-		PROMPT_INFO[git]=$(command git rev-parse --abbrev-ref HEAD)
-		set_prompt
+		if [ "$DIR" != "$HOME" ]
+		then
+			printf >&2 "[Entering git repo %s]\n" "$DIR"
+
+			PROMPT_INFO[git]=$(command git rev-parse --abbrev-ref HEAD)
+			set_prompt
+		fi
 	fi
 }
 
