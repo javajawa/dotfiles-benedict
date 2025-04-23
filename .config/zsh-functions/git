@@ -73,7 +73,11 @@ mr()
 
 git_last_commit()
 {
-	git log -1 --format="%s%n%n%b" ${1:-"HEAD"}
+	command git log -1 --format="%s%n%n%b" ${1:-"HEAD"}
+}
+git_branch_log()
+{
+	command git log --format="### [%h] %s%n%n%b" --reverse origin/HEAD..HEAD
 }
 
 git_update()

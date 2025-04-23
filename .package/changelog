@@ -2,6 +2,7 @@ dotfiles-benedict (unreleased)
 
   * Configure git to perform nicer diffs and rebases
   * Enable keep-alive for SSH connections on the work VPN
+  * Add tool for generating a markdown history of a git topic branch
   * Add additional git-config defaults
 
  -- Untagged
