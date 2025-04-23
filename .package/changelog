@@ -1,5 +1,7 @@
 dotfiles-benedict (unreleased)
 
+  * Configure git to perform nicer diffs and rebases
+  * Enable keep-alive for SSH connections on the work VPN
   * Add additional git-config defaults
 
  -- Untagged
