@@ -48,6 +48,7 @@ source ~/.config/zsh-functions/aliases
 source ~/.config/zsh-functions/compinit
 source ~/.config/zsh-functions/prompt
 source ~/.config/zsh-functions/python
+source ~/.config/zsh-functions/urls
 command -v git     >/dev/null 2>/dev/null && source ~/.config/zsh-functions/git
 command -v kubectl >/dev/null 2>/dev/null && source ~/.config/zsh-functions/kube
 

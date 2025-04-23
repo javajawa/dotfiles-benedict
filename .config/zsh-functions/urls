@@ -1,0 +1,29 @@
+#!/bin/zsh
+
+url_to_host() {
+	HOST=${1}
+	HOST=${HOST#http://}
+	HOST=${HOST#https://}
+	HOST=${HOST#ssh://}
+	HOST=${HOST%/}
+	printf "%s" "$HOST"
+}
+
+dig() {
+	if [ $# -eq 1 ]
+	then
+		command dig "$(url_to_host "$1")"
+	else
+		command dig "$@"
+	fi
+}
+
+ping() {
+	if [ $# -eq 1 ]
+	then
+		command ping "$(url_to_host "$1")"
+	else
+		command ping "$@"
+	fi
+}
+

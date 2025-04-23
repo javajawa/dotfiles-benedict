@@ -4,6 +4,7 @@ dotfiles-benedict (unreleased)
   * Enable keep-alive for SSH connections on the work VPN
   * Add tool for generating a markdown history of a git topic branch
   * Add additional git-config defaults
+  * Auto convert http/s URLs to hostnames for `dig` and `ping`
 
  -- Untagged
 
