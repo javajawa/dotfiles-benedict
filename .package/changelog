@@ -1,4 +1,4 @@
-dotfiles-benedict (unreleased)
+dotfiles-benedict (2.0-5) stable
 
   * Configure git to perform nicer diffs and rebases
   * Enable keep-alive for SSH connections on the work VPN
@@ -7,7 +7,13 @@ dotfiles-benedict (unreleased)
   * Auto convert http/s URLs to hostnames for `dig` and `ping`
   * Prevent running `git_redo` in homedir
 
- -- Untagged
+ -- Benedict Harcourt <ben@tea-cats.co.uk>  Sun, 25 May 2025 13:09:29 +0000
+
+dotfiles-benedict (2.0-4) stable
+
+  * Fix ownership of files in the Debian package
+
+ -- Benedict Harcourt <ben@tea-cats.co.uk>  Thu, 07 Nov 2024 12:00:00 +0000
 
 dotfiles-benedict (2.0-3) stable
 
