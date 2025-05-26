@@ -1,3 +1,9 @@
+dotfiles-benedict (2.0-7) stable
+
+  * Fix `urls` zsh function being missing from the manifest.
+
+ -- Benedict Harcourt <ben@tea-cats.co.uk>  Mon, 26 May 2025 16:50:36 +0000
+
 dotfiles-benedict (2.0-6) stable
 
   * Add new SSH keys from `milo` and `iphone(14)`.
