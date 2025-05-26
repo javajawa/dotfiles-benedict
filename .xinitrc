@@ -1,9 +1,8 @@
 #!/bin/sh
 
-# Audio setup
-if command -v pactl >/dev/null 2>/dev/null
+if [ -e "$HOME/.xinitrc.local" ]
 then
-	pactl set-default-sink alsa_output.pci-0000_00_1b.0.analog-stereo
+	source "$HOME/.xinitrc.local"
 fi
 
 # Set up daemons that only run on some machines
@@ -15,7 +14,7 @@ eval $(ssh-agent)
 dwmstatus &
 
 # Run the window manager
-/usr/local/bin/dwm
+dwm
 
 # Ensure that ssh-agent goes away
 ssh-agent -k

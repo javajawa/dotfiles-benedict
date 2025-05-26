@@ -13,7 +13,10 @@ Description: Configuration files for benedict
  files for Benedict Harcourt.
  If one does not already exist, an account called
  'benedict' will be created on your system, with
- shell '/bin/zsh' and home '/home/benedict'.
+ shell '/bin/zsh' and home '/home/benedict', and will
+ be added to the `_ssh`, `adm`, and `sudo` groups.
+ To suppress this behaviour, create the user before
+ installing the package.
  .
  Configuration files are included for:
  .
