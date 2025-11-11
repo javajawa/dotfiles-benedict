@@ -3,6 +3,7 @@ dotfiles-benedict (2.1-1) stable
   * Git config changes
     - Fix default email.
     - Load `gitignore_global` from ~, rather than pre-expanding $HOME.
+    - Optimise `git_prompt` to handle `$PWD=$HOME` without invoking tools.
 
  -- Not Yet Tagged
 
