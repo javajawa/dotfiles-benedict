@@ -1,56 +1,99 @@
 #---PYTHON AUTOMATION-----------------------------------------------------
 # vim: syntax=zsh
 
+_unset_venv()
+{
+	printf >&2 "[Leaving venv %s]\n" "$VIRTUAL_ENV"
+
+	unset VENV_NAME
+	unset VIRTUAL_ENV
+	unset PYTHONPATH
+
+	export PATH=$DEFAULT_PATH
+
+	unset "PROMPT_INFO[venv]"
+
+	set_prompt
+}
+
 activate_venv()
 {
-	readonly local CURR_DIR="$(pwd)/"
+	local SELECTED_VENV=$1
+	readonly local CURR_DIR="$(pwd)"
 
-	if [ -n "$VIRTUAL_ENV" ]
+	# Check if we're still in the same tree as the currently selected VENV
+	# There's a special case for $HOME/venv where we use that regardless,
+	# but also check for a local-to-this-directory venv if available.
+	if [ -n "$VIRTUAL_ENV" ] && [ "$VIRTUAL_ENV" != "${HOME}/venv" ]
 	then
-		readonly BASE_DIR=${VIRTUAL_ENV%venv}
+		readonly OLD_BASE_DIR="${VIRTUAL_ENV%/*}/"
 
-		if [ "${CURR_DIR#$BASE_DIR}" != "${CURR_DIR}" ]
+		# If we're in a subdirectory of a non-HOME venv, just keep it as is.
+		if [ "${CURR_DIR#$OLD_BASE_DIR}" != "${CURR_DIR}" ]
 		then
 			return 0
 		fi
-
-		printf >&2 "[Leaving venv %s]\n" "$VIRTUAL_ENV"
-
-		unset VENV_NAME
-		unset VIRTUAL_ENV
-		unset PYTHONPATH
-
-		export PATH=$DEFAULT_PATH
-
-		unset "PROMPT_INFO[venv]"
-
-		set_prompt
 	fi
 
-	if [ -d "${CURR_DIR}venv" ]
+	# Find the best venv available
+	if [ -z "$SELECTED_VENV" ]
 	then
-		printf >&2 "[Entering venv %s]\n" "${CURR_DIR}venv"
-
-		export VIRTUAL_ENV="${CURR_DIR}venv"
-		export PATH="${CURR_DIR}venv/bin:$DEFAULT_PATH"
-		export PROMPT_INFO[venv]="$(basename ${CURR_DIR})"
-
-		local _PY_PATH=""
-
-		if [ -d "${CURR_DIR}tests" ]
+		if [ -d "${CURR_DIR}/venv" ]
 		then
-			_PY_PATH="${CURR_DIR}tests:${_PY_PATH}"
-		fi
-		if [ -d "${CURR_DIR}src" ]
+			SELECTED_VENV="${CURR_DIR}/venv"
+		elif [ -d "${CURR_DIR}/.venv" ]
 		then
-			_PY_PATH="${CURR_DIR}src:${_PY_PATH}"
+			SELECTED_VENV="${CURR_DIR}/.venv"
+		else
+			SELECTED_VENV="${HOME}/venv"
 		fi
-
-		PYTHONPATH=${_PY_PATH%:}
-		export PYTHONPATH
-
-		set_prompt
 	fi
+
+	# Resolve any links
+	SELECTED_VENV=$(readlink -f "$SELECTED_VENV")
+	readonly SELECTED_VENV
+
+	# Check to confirm this is a real venv
+	if ! [ -d "$SELECTED_VENV" ]
+	then
+		# Clear an existing venv if there is one
+		if [ -n "$VIRTUAL_ENV" ]
+		then
+			_unset_venv
+		fi
+		return 0
+	fi
+
+	# In the case we're reselecting the home venv, do nothing.
+	if [ "$VIRTUAL_ENV" = "$SELECTED_VENV" ]
+	then
+		return 0
+	fi
+
+	# Activate the venv
+	printf >&2 "[Entering venv %s]\n" "$SELECTED_VENV"
+	readonly local BASE_DIR="${SELECTED_VENV%/*}"
+
+	export VIRTUAL_ENV="${SELECTED_VENV}"
+	export PATH="${SELECTED_VENV}/bin:$DEFAULT_PATH"
+	export PROMPT_INFO[venv]="$(basename ${BASE_DIR})"
+
+	# Set up the python path
+	local _PY_PATH=""
+
+	if [ -d "${BASE_DIR}/tests" ]
+	then
+		_PY_PATH="${BASE_DIR}/tests:${_PY_PATH}"
+	fi
+	if [ -d "${BASE_DIR}/src" ]
+	then
+		_PY_PATH="${BASE_DIR}/src:${_PY_PATH}"
+	fi
+
+	PYTHONPATH=${_PY_PATH%:}
+	export PYTHONPATH
+
+	set_prompt
 }
 
 add-zsh-hook chpwd activate_venv
