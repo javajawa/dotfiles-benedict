@@ -43,5 +43,10 @@ kubeshell()
 	kubectl run "${USER%%.*}-temp-shell" --rm -i --tty --image debian:latest -- bash
 }
 
+kube_reveal_secret()
+{
+	kubectl get secret "$@" -o yaml | yq '.data | map_values(@base64d)'
+}
+
 compdef _kubectx kubectx
 compdef _kubectl allkubes
