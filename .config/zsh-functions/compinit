@@ -20,4 +20,5 @@ zstyle ':completion::*:(rm|vim):*' ignore-line true
 zstyle ':completion:*:*:vim:*:*files' ignored-patterns '*.o' '*.pdf'
 zstyle ':completion:*:*:vim:*:*files' ignored-patterns '*.aux' '*.dvi' '*.out' '*.nav' '*.snm'
 
-autoload -U compinit && compinit -u 2>/dev/null
+autoload -Uz compinit
+compinit -C
