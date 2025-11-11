@@ -52,8 +52,6 @@ source ~/.config/zsh-functions/urls
 command -v git     >/dev/null 2>/dev/null && source ~/.config/zsh-functions/git
 command -v kubectl >/dev/null 2>/dev/null && source ~/.config/zsh-functions/kube
 
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
-
 set_prompt
 
 assume_role()

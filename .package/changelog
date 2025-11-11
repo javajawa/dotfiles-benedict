@@ -13,6 +13,7 @@ dotfiles-benedict (2.1-1) stable
 
   * Add `lyrebird.tea-cats.co.uk` to SSH config.
   * Add `git.tea-cats.co.uk` to well-known Git servers.
+  * Drop support for iTerm2, which I no longer use.
 
  -- Not Yet Tagged
 
