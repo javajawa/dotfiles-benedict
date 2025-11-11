@@ -8,6 +8,7 @@
 [commit]
 	verbose = 1
 	gpgsign = 1
+	cleanup = scissors
 [gpg]
 	format = ssh
 
@@ -39,3 +40,10 @@
 [rerere]
 	enabled = true
 	autoupdate = true
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[advice]
+	diverging = false

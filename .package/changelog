@@ -4,6 +4,9 @@ dotfiles-benedict (2.1-1) stable
     - Fix default email.
     - Load `gitignore_global` from ~, rather than pre-expanding $HOME.
     - Optimise `git_prompt` to handle `$PWD=$HOME` without invoking tools.
+    - Enable git-lfs support auto-magically.
+    - Use the 'scissors' method for finding the end of a commit message.
+    - Disable advice line for diverging remote branches.
 
  -- Not Yet Tagged
 
