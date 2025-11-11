@@ -11,6 +11,12 @@ dotfiles-benedict (2.1-1) stable
   * Kubernetes Support tools
     - Add `kube_reveal_secret` to show secret values base64 decoded.
 
+  * Python Support tools
+    - Detection of python venv now fork-execs at most once.
+    - Detection of python venv is now smarter about checking if it
+      could have changed based on the relative location of the current
+      selection.
+
   * Add `lyrebird.tea-cats.co.uk` to SSH config.
   * Add `git.tea-cats.co.uk` to well-known Git servers.
   * Drop support for iTerm2, which I no longer use.
