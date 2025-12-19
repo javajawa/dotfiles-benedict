@@ -22,6 +22,8 @@
 !/.config/zsh-cache
 !/.config/htop
 !/.config/htop/htoprc
+!/.config/dunst
+!/.config/dunst/dunstrc
 
 !/.ssh
 !/.ssh/config

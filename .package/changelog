@@ -1,5 +1,9 @@
 dotfiles-benedict (2.1-1) stable
 
+  * Add `dunst` for desktop notifications.
+    - This integrates with the dbus notifications primitives.
+    - Messages appear on the top left of the primary monitor.
+
   * Git config changes
     - Fix default email.
     - Load `gitignore_global` from ~, rather than pre-expanding $HOME.

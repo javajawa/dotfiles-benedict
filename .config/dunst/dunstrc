@@ -1,0 +1,85 @@
+# See dunst(5) for all configuration options
+# vim: ft=cfg
+
+[global]
+    ### Display ###
+
+    # Which monitor should the notifications be displayed on.
+    monitor = 0
+
+    ### Geometry ###
+
+    # The width of the window, excluding the frame.
+    # dynamic width from 0 to 300
+    # width = (0, 300)
+    # constant width of 300
+    width  = 400
+    height = (0, 300)
+
+    # Position the notification in the top right corner
+    origin = top-left
+
+    # Offset from the origin
+    # NOTE: Dunst from version 1.11 and older use this alternative notation
+    # offset = 10x50
+    offset = (4, 60)
+
+    # Maximum number of notification (0 means no limit)
+    notification_limit = 5
+
+    # Draw a line of "separator_height" pixel height between two
+    # notifications.
+    # Set to 0 to disable.
+    # If gap_size is greater than 0, this setting will be ignored.
+    separator_height = 1
+
+    # Padding between text and separator.
+    padding = 2
+
+    # Horizontal padding.
+    horizontal_padding = 4
+    # Padding between text and icon.
+    text_icon_padding = 8
+
+    # Defines width in pixels of frame around the notification window.
+    # Set to 0 to disable.
+    frame_width = 1
+    frame_color = "#444444"
+
+    # Size of gap to display between notifications - requires a compositor.
+    # If value is greater than 0, separator_height will be ignored and a border
+    # of size frame_width will be drawn around each notification instead.
+    # Click events on gaps do not currently propagate to applications below.
+    gap_size = 2
+
+    # Browser for opening urls in context menu.
+    browser = /usr/local/bin/chromium
+
+    ### mouse
+	mouse_left_click = do_action, close_current
+
+[urgency_low]
+    # IMPORTANT: colors have to be defined in quotation marks.
+    # Otherwise the "#" and following would be interpreted as a comment.
+    background = "#222222"
+    foreground = "#888888"
+    timeout = 10
+    # Icon for notifications with low urgency
+    default_icon = dialog-information
+
+[urgency_normal]
+    background = "#285577"
+    foreground = "#ffffff"
+    timeout = 10
+    override_pause_level = 30
+    # Icon for notifications with normal urgency
+    default_icon = dialog-information
+
+[urgency_critical]
+    background = "#900000"
+    foreground = "#ffffff"
+    frame_color = "#ff0000"
+    timeout = 0
+    override_pause_level = 60
+    # Icon for notifications with critical urgency
+    default_icon = dialog-warning

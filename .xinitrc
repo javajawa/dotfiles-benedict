@@ -12,6 +12,7 @@ command -v amixer   >/dev/null 2>/dev/null && amixer -q -- set Master -0dB
 # Set up the two universal daemons -- ssh-agent and the status tray
 eval $(ssh-agent)
 dwmstatus &
+dunst &
 
 # Run the window manager
 dwm
