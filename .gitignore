@@ -30,6 +30,7 @@
 !/.ssh/authorized_keys
 
 !/.screenrc
+!/.sqliterc
 !/.vimrc
 !/.xinitrc
 !/.zshrc

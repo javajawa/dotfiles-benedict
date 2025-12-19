@@ -26,6 +26,7 @@ dotfiles-benedict (2.1-1) stable
   * Add `git.tea-cats.co.uk` to well-known Git servers.
   * Drop support for iTerm2, which I no longer use.
   * Optimise `compinit` to improve startup times.
+  * Add `.sqliterc` configuration.
 
  -- Not Yet Tagged
 
