@@ -26,6 +26,9 @@ g()
 		if [ "${REPO%%/*}" = "gocomparegroup" ] || [ "${REPO%%/*}" = "javajawa" ]
 		then
 			REPO="git@github.com:${REPO%.git}.git"
+		elif [ "${REPO%%/*}" = "benedict" ] || [ "${REPO%%/*}" = "deb" ]
+		then
+			REPO="git@git.tea-cats.co.uk:${REPO%.git}.git"
 		else
 			REPO="git@gitlab.futurenet.com:${REPO%.git}.git"
 		fi
