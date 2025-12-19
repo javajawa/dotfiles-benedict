@@ -1,3 +1,11 @@
+dotfiles-benedict (2.1-1) stable
+
+  * Git config changes
+    - Fix default email.
+    - Load `gitignore_global` from ~, rather than pre-expanding $HOME.
+
+ -- Not Yet Tagged
+
 dotfiles-benedict (2.0-7) stable
 
   * Fix `urls` zsh function being missing from the manifest.
