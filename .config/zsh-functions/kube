@@ -1,13 +1,282 @@
 #---KUBE AUTOMOATION------------------------------------------------------
 # vim: syntax=zsh
 
-PROMPT_INFO[kube]="$(kubectl config current-context)"
+# Setup completion for `kubectl`
+if ! [ -e "$HOME/.config/zsh-functions/_kubectl" ]
+then
+	kubectl completion zsh >"$HOME/.config/zsh-functions/_kubectl"
+fi
+source "$HOME/.config/zsh-functions/_kubectl"
+test -e "$HOME/.config/zsh-functions/_helm" && source "$HOME/.config/zsh-functions/_helm"
+
+# Helper function to get a quick kube pod with a shell
+kubeshell()
+{
+	kubectl run "${USER%%.*}-temp-shell" --rm -i --tty --image debian:latest -- bash
+}
+
+#---KUBE CONTEXT AUTO-MANAGEMENT------------------------------------------
+if ! command -v yq >/dev/null 2>/dev/null
+then
+	printf >&1 "kubectx: Need yq installed\n"
+	return
+fi
+
+if ! [ -d "$HOME/.config/kube" ]
+then
+	mkdir -p "$HOME/.config/kube"
+fi
+
+_auto_kube_context()
+{
+	# Info from which to build our kube config
+	local K_FILE K_CONTEXT K_NS
+
+	# Ensure any existing kubeconfig points to a readable file
+	if [ -z "$KUBECONFIG" ] || [ ! -f "$KUBECONFIG" ] || [ ! -r "$KUBECONFIG" ]
+	then
+		unset KUBECONFIG
+	fi
+
+	# Skip this process when an external config has been provided
+	if [ -n "$KUBECONFIG" ] && [ "${KUBECONFIG#$HOME}" = "${KUBECONFIG}" ]
+	then
+		printf >&2 "kubectx: Skipping auto configuration as \$KUBE_CONFIG is outside of \$HOME\n"
+		printf "%s" "$KUBECONFIG"
+		_k_prompt
+		return 0
+	fi
+
+	# Skip this process when we are a child of an existing zsh process
+	# (typically via `exec zsh` to reload configuration)
+	if [ -n "$KUBECONFIG" ] && [ "${KUBECONFIG#$HOME/.config/kube}" != "${KUBECONFIG}" ]
+	then
+		printf >&2 "kubectx: Inheriting KUBECONFIG from parent\n"
+		printf "%s" "$KUBECONFIG"
+		_k_prompt
+		return 0
+	fi
+
+	# Use the last known configuration *unless* the process was launched
+	# with the KUBECONFIG environment variable set (such as in Lens)
+	if [ -n "$KUBECONFIG" ] || ! [ -r "$HOME/.config/kube/last-config" ]
+	then
+		K_FILE="${KUBECONFIG:-~/.kube/config}"
+		K_CONTEXT=$(yq -r '.current-context' "$K_FILE")
+		K_NS=$(yq -r '.current-context as $ctx | .contexts[] | select(.name == $ctx) | .context.namespace // ""' "$K_FILE")
+	else
+		exec 3<"$HOME/.config/kube/last-config"
+		read -r -u 3 K_FILE
+		read -r -u 3 K_CONTEXT
+		read -r -u 3 K_NS
+	fi
+
+	# This zsh session's kube config
+	KUBECONFIG="$HOME/.config/kube/config-$PPID"
+	export KUBECONFIG
+	trap _clean_kubeconfig TERM KILL EXIT
+
+	# Ensure the file is correctly built
+	_build_kube_config "$K_FILE" "$K_CONTEXT" "$K_NS"
+	printf "%s" "$KUBECONFIG"
+	_k_prompt
+}
+
+_clean_kubeconfig()
+{
+	if [ -z "$KUBECONFIG" ]
+	then
+		return 0
+	fi
+	if [ "${KUBECONFIG#$HOME/.config/kube}" = "${KUBECONFIG}" ]
+	then
+		return 0
+	fi
+	rm -f "$KUBECONFIG"
+	unset KUBECONFIG
+	export KUBECONFIG
+}
+
+_build_kube_config()
+{
+	# Updates the KUBECONFIG file with the selected context from
+	# another kubeconfig file.
+
+	# Ensure that we are working with a kube config owned by zsh
+	# rather than one supplied by an external process, or one set
+	# into the environment by the user.
+	if [ -z "$KUBECONFIG" ]
+	then
+		printf >&2 "kubectx: No \$KUBECONFIG variable set -- have you been messing with \`env\`??\n"
+		return 1
+	fi
+	if [ "${KUBECONFIG#${HOME}/.config/kube}" = "${KUBECONFIG}" ]
+	then
+		printf >&2 "kubectx: \$KUBECONFIG is not in \"\$HOME/.config/kube\", refusing to alter\n"
+		return 1
+	fi
+
+	local K_FILE="$1"
+	local K_CONTEXT="$2"
+	local K_NS="$3"
+	local F_NS  # Formatted version of the namespace
+
+	# Verify inputs
+	if [ -z "$K_FILE" ]
+	then
+		printf >&2 "kubectx: No kube config file specified\n"
+		return 1
+	fi
+	if [ -z "$K_CONTEXT" ]
+	then
+		printf >&2 "kubectx: No kube context specified for %s\n" "$K_FILE"
+		return 1
+	fi
+
+	# Verify that the selected context has a `cluster` and `user` object selected.
+	local K_CLUSTER
+	local K_USER
+	yq -r ".contexts[] | select(.name == \"${K_CONTEXT}\") | [.context.cluster, .context.user, .context.namespace // \"\"] | @tsv" "$K_FILE" \
+	| read -r K_CLUSTER K_USER F_NS
+	if [ -z "$K_CLUSTER" ] || [ -z "$K_USER" ]
+	then
+		printf >&2 "kubectx: Unable to find context %s in %s\n" "$K_CONTEXT" "$K_FILE"
+		return 1
+	fi
+    # If the user hasn't specified a namespace and the upstream config does, use that
+	if [ -z "$K_NS" ] && [ -n "$F_NS" ]
+	then
+		K_NS=$F_NS
+	fi
+
+	# Build the new configuration file
+	exec 3>"${KUBECONFIG}.new"
+	printf >&3 "# Kube config built from %s\n" "$K_FILE"
+	if [ -n "$K_NS" ]; then F_NS="\"$K_NS\"" else F_NS="null" fi
+	yq "
+		( .contexts[] | select(.name == \"${K_CONTEXT}\") ) as \$context |
+		( .clusters[] | select(.name == \"${K_CLUSTER}\") ) as \$cluster |
+		( .users[] | select(.name == \"${K_USER}\") ) as \$user |
+		{
+			\"current-context\": \"${K_CONTEXT}\",
+			\"contexts\": [\$context],
+			\"clusters\": [\$cluster],
+			\"users\": [\$user]
+		}
+		| .contexts[0].context.namespace = ${F_NS}
+	" "$K_FILE" >&3
+	exec 3>&-
+
+	# Record this is the most recently selected configuration
+	exec 3>"$HOME/.config/kube/last-config"
+	printf >&3 "%s\n%s\n%s\n" "$K_FILE" "$K_CONTEXT" "$K_NS"
+	exec 3>&-
+
+	# Announce a change if a change has happened
+	if [ -e "${KUBECONFIG}" ] && diff "${KUBECONFIG}" "${KUBECONFIG}.new" >/dev/null
+	then
+		rm -f "${KUBECONFIG}.new"
+		return 2
+	fi
+
+	# Write the config
+	mv "${KUBECONFIG}.new" "${KUBECONFIG}"
+	printf >&2 "kubectx: Switched %s to context %s from %s\n" "$KUBECONFIG" "$K_CONTEXT" "$K_FILE"
+
+	# Update the user's prompt
+	_k_prompt
+}
+
+_k_prompt()
+{
+	# Update the prompt with the current context name and namespace
+
+	local K_CONTEXT=$(yq -r '.current-context' "$KUBECONFIG")
+	local K_NS=$(yq -r '.current-context as $ctx | .contexts[] | select(.name == $ctx) | .context.namespace // ""' "$KUBECONFIG")
+
+	if [ -n "$K_NS" ]
+	then
+		PROMPT_INFO[kube]="$K_CONTEXT:$K_NS"
+	else
+		PROMPT_INFO[kube]="$K_CONTEXT"
+	fi
+	set_prompt
+}
+
+_K=$(_auto_kube_context)
+if [ -n "$_K" ]
+then
+	export KUBECONFIG="$_K"
+fi
+unset _K
+
+declare -A _KUBE_CONTEXTS
+
+_cache_kube_contexts()
+{
+	local __CONTEXT
+	local K_FILE
+	_KUBE_CONTEXTS=( )
+
+	find "$HOME/.kube" -name cache -prune -o -type f -name 'config*' -print0 | while read -r -d '' K_FILE
+	do
+		yq '.contexts[].name' "$K_FILE" | while read -r __CONTEXT
+		do
+			test -z "$_KUBE_CONTEXTS[$__CONTEXT]" || continue
+			_KUBE_CONTEXTS[${__CONTEXT}]="$K_FILE"
+		done
+	done
+}
+
+_list_kube_contexts()
+{
+	local K_CONTEXT
+	_cache_kube_contexts
+	for K_CONTEXT in ${(k)_KUBE_CONTEXTS}
+	do
+		printf "%-40s\t%s\n" "$K_CONTEXT" "$_KUBE_CONTEXTS[$CONTEXT]"
+	done | sort
+}
 
 kubectx()
 {
-	kubectl config use-context "$@"
-	PROMPT_INFO[kube]="$(kubectl config current-context)"
-	set_prompt
+	if [ -e "$1" ] && [ $# -gt 1 ]
+	then
+		_build_kube_config "$1" "$2" "${3:-}"
+		return $?
+	fi
+
+	if [ "$#_KUBE_CONTEXTS" -eq 0 ]
+	then
+		_cache_kube_contexts
+	fi
+
+	local K_CONTEXT=$1
+
+	if [ -z "$K_CONTEXT" ]
+	then
+		_list_kube_contexts
+		return $?
+	fi
+
+	local K_FILE="$_KUBE_CONTEXTS[$K_CONTEXT]"
+
+	if [ -z "$K_FILE" ]
+	then
+		printf >&2 "kubectx: context %s not found in any config file\n" "$K_CONTEXT"
+		return 1
+	fi
+
+	_build_kube_config "$K_FILE" "$K_CONTEXT" "${2:-}"
+	return $?
+}
+
+kns()
+{
+	if [ -n "$1" ]; then F_NS="\"$1\"" else F_NS="null" fi
+
+	yq ".contexts[0].context.namespace = $F_NS" -i "$KUBECONFIG"
+	_k_prompt
 }
 
 _kubectx()
@@ -16,9 +285,11 @@ _kubectx()
 
 	if [ "$state" = "context" ]
 	then
-		local KUBECONFIG=${KUBECONFIG:-~/.kube/config}
-		local CONTEXTS=("${(@f)$(kubectl config get-contexts -o name)}")
-		compadd "$@" $CONTEXTS
+		if [ "$#_KUBE_CONTEXTS" -eq 0 ]
+		then
+			_cache_kube_contexts
+		fi
+		compadd "$@" ${(k)_KUBE_CONTEXTS}
 	fi
 }
 
@@ -30,23 +301,22 @@ allkubes()
 		return 1
 	fi
 
-	for CONTEXT in $(kubectl config get-contexts -o name)
+	local CONTEXT
+	local KUBECONIFG
+
+	_cache_kube_contexts
+	for CONTEXT KUBECONFIG in ${(kv)_KUBE_CONTEXTS}
 	do
-		printf >&2 " === %s ===\n" "$CONTEXT"
-		kubectl "--context=$CONTEXT" "$@"
+		printf >&2 " === %s (%s) ===\n" "$CONTEXT" "$KUBECONFIG"
+		kubectl "--kubeconfig=$KUBECONFIG" "--context=$CONTEXT" "$@"
 		printf >&2 "\n"
 	done
 }
 
-kubeshell()
-{
-	kubectl run "${USER%%.*}-temp-shell" --rm -i --tty --image debian:latest -- bash
-}
 
 kube_reveal_secret()
 {
 	kubectl get secret "$@" -o yaml | yq '.data | map_values(@base64d)'
 }
-
 compdef _kubectx kubectx
 compdef _kubectl allkubes

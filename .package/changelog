@@ -14,6 +14,13 @@ dotfiles-benedict (2.1-1) stable
 
   * Kubernetes Support tools
     - Add `kube_reveal_secret` to show secret values base64 decoded.
+    - Generate static completion files for kubectl / helm on load.
+  * Reconfigure `kubectx` to be per-shell instance.
+    - Config files are read from ~/.kube recursively.
+    - When using `kubectx`, a temporary config file is made/updated.
+    - `kubectx` is disabled if the shell is launched with a `KUBECONFIG`
+      environment variable outside of this system's control.
+    - KNOWN BUG: new shells don't properly 'remember' the latest config.
 
   * Python Support tools
     - Detection of python venv now fork-execs at most once.
