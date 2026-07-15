@@ -38,14 +38,14 @@ activate_venv()
 	# Find the best venv available
 	if [ -z "$SELECTED_VENV" ]
 	then
-		if [ -d "${CURR_DIR}/venv" ]
-		then
-			SELECTED_VENV="${CURR_DIR}/venv"
-		elif [ -d "${CURR_DIR}/.venv" ]
+		if [ -d "${CURR_DIR}/.venv" ]
 		then
 			SELECTED_VENV="${CURR_DIR}/.venv"
+		elif [ -d "${CURR_DIR}/venv" ]
+		then
+			SELECTED_VENV="${CURR_DIR}/venv"
 		else
-			SELECTED_VENV="${HOME}/venv"
+			SELECTED_VENV="${HOME}/.venv"
 		fi
 	fi
 
@@ -123,14 +123,14 @@ venv()
 	GITDIR=${GITDIR:-$(pwd)}
 	readonly GITDIR
 
-	printf >&2 "Create venv in %s? [Yn]" "$GITDIR/venv"
+	printf >&2 "Create venv in %s? [Yn]" "$GITDIR/.venv"
 	read -r CREATE
 
 	test "$CREATE" = "n" || test "$CREATE" = "N" || test "$CREATE" = "no"
 
 	if [ $? -ne 0 ]
 	then
-		command python3 -m venv --upgrade-deps --symlinks --clear "$GITDIR/venv"
+		command python3 -m venv --upgrade-deps --symlinks --clear "$GITDIR/.venv"
 		activate_venv
 	fi
 }
