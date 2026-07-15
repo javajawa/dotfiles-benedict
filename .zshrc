@@ -40,6 +40,8 @@ bindkey "^[[1~" beginning-of-line
 bindkey "^[[4~" end-of-line
 bindkey "^[^[[C" forward-word
 bindkey "^[^[[D" backward-word
+bindkey "^[[1;9D" backward-word
+bindkey "^[[1;9C" forward-word
 
 EDITOR="vim"
 COLORFGBG="default;default"

@@ -35,6 +35,7 @@ dotfiles-benedict (2.1-1) stable
   * Report TERM=xterm to machines outside of tea-cats.co.uk.
   * Optimise `compinit` to improve startup times.
   * Add `.sqliterc` configuration.
+  * Bind more arrow meta keys.
 
  -- Not Yet Tagged
 
