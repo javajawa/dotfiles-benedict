@@ -37,7 +37,7 @@ dotfiles-benedict (2.1-1) stable
   * Add `.sqliterc` configuration.
   * Bind more arrow meta keys.
 
- -- Not Yet Tagged
+ -- Benedict Harcourt <ben@tea-cats.co.uk>  Fri, 17 Jul 2026 10:07:00 +0000
 
 dotfiles-benedict (2.0-7) stable
 
